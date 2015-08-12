@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Are you paying too much?</title>
+	<link rel="stylesheet" href="/css/home.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+	<script>
+		$(document).ready(function(){
+
+			var questionsRent = [{
+									friendlyName : "Zipcode",
+									questionText : "What is your zipcode?",
+									inputValidation : function(){ /*alert("Validation!");*/},
+								},
+								{
+									friendlyName : "BedroomsCounts",
+									questionText : "How many bedrooms do you have?",
+									inputValidation : function(){},
+								},
+								{
+									friendlyName : "BathroomsCount",
+									questionText : "How many bathrooms do you have?",
+									inputValidation : function(){},
+								},
+								{
+									friendlyName : "Rent",
+									questionText : "How much do you pay?",
+									inputValidation : function(){},
+								}];
+			var answers = [];
+			var questionCounter = -1;
+
+			$(".panel-questions").hide();
+
+    		$("#rentId").click(function(){
+        		$(".panel-icons").fadeOut(1000, "swing", function(){
+        			showNextQuestion();
+        			//$(".panel-questions").fadeIn(1000,"swing";
+        		});
+   	 		});
+
+   	 		$("#nextId").click(function(){
+   	 			answers[questionCounter] = $.trim($("#inputTextId").val());
+   	 			questionsRent[questionCounter].inputValidation();
+   	 			if (questionCounter >= 0 && questionCounter >= questionsRent.length - 1)
+   	 				uploadData();
+   	 			else
+					$(".panel-questions").fadeOut(1000,"swing", function(){
+						 showNextQuestion();
+					});
+   	 		})
+
+   	 		function uploadData(){
+   	 			var uploadURL = "http://localhost:3000/upload"
+
+				$.post(
+						uploadURL,
+				      	{	
+				      	  context: "rent",
+				          zipcode: answers[0],
+				          bedrooms: answers[1],
+				          bathrooms: answers[2],
+				          rent: answers[3]
+				        },
+				        function(data,status){
+				        	   var obj = JSON.parse(data);
+    							var tid = obj.tid;
+    							alert(tid);
+				            //alert("Data: " + data + "\nStatus: " + status);
+				        }
+				      );
+   	 		}
+
+   	 		function showNextQuestion(){
+   	 			++questionCounter;
+   	 		 	$('#questionId').text(questionsRent[questionCounter].questionText);
+   	 		 	$(".panel-questions").fadeIn(1000,"swing", function(){
+   	 		 		$('#inputTextId').val(''); // clear
+   	 				$('#inputTextId').focus(); // focus
+   	 		 	});
+   	 		}
+
+   	 		function ajax(config){
+				this.method = config.method || 'GET';
+				this.payload = config.payload || null;
+				var xhr = new XMLHttpRequest();
+				xhr.open(this.method, config.url, true);
+				// xhr.upload.addEventListener("progress", function(e){
+				// 	config.progress(e);
+				// });
+				xhr.addEventListener("load", function(){
+					config.success(xhr);
+				});
+				xhr.addEventListener("error", config.error);
+				xhr.send(this.payload);
+			}
+
+		});
+	</script>
+</head>
+<body>
+	<!-- Container for selecting utility type -->
+	<ul class="hm-panel">
+		<div class="panel-icons">
+			<li class="hm-utilitycontainer" id="rentId">
+				<h1 class="hm-title">Rent</h1>
+				<a><img class="hm-rentImg" src="/images/rent.png"></a>
+			</li>	
+			<li class="hm-utilitycontainer" id="internetId">
+				<h1 class="hm-title">Internet</h1>
+				<a><img class="hm-rentImg" src="/images/rent.png"></a>
+			</li>
+		</div>
+		<div class="panel-questions">
+			<li class="hm-questionscontainer" id="questionText">
+				<p id="questionId"> What is your zipcode? </p>
+			</li>
+			<li class="hm-questionscontainer">
+				<input id="inputTextId" type="text" />
+			</li>
+			<li class="hm-questionscontainer">
+				<button id="nextId" type="button"> -> </button>
+			</li>
+		</div>				
+	</ul>
+</body>
+</html>
