@@ -1,15 +1,14 @@
 module.exports = function(express, app, bodyParser, mongoose){
 
-//app.use(express.bodyParser());
-
-//var jsonParser = bodyParser.json()
-
 var urlencodedParser = bodyParser.urlencoded({ extended: false })
-
 
 var router = express.Router();
 router.get('/', function(req, res, next){
 	res.render('index', {});
+})
+
+router.get('/visualize', function(req, res, next){
+	res.render('visualize', {});
 })
 
 router.post('/upload', urlencodedParser, function(req, res, next){
@@ -29,17 +28,10 @@ document.save(function(err){
 	if (err)
 		console.log(err);
 	else
-		console.log("Saved to DB");
-
-var obj = {
-    		tid: 555
-		  };
-
-res.statusCode = 200;
-res.send(JSON.stringify(obj));
-res.end();
-
+		console.log("Saved to DB yo!");
 });
+
+res.send({redirect: '/visualize'});
 
 })
 

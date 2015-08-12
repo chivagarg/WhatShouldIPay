@@ -64,9 +64,13 @@
 				          rent: answers[3]
 				        },
 				        function(data,status){
-				        	   var obj = JSON.parse(data);
-    							var tid = obj.tid;
-    							alert(tid);
+				        	window.location = data.redirect;
+				        	//alert("Redirect to ->" + data.redirect);
+				        	//if (typeof data.redirect == 'string')
+                    		//	window.location = data.redirect
+				       //  	   var obj = JSON.parse(data);
+    							// var tid = obj.tid;
+    							// alert(tid);
 				            //alert("Data: " + data + "\nStatus: " + status);
 				        }
 				      );
