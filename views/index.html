@@ -5,6 +5,11 @@
 	<title>Are you paying too much?</title>
 	<link rel="stylesheet" href="/css/home.css">
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+	 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js"></script>
+  <!-- jQuery -->  
+  <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+  <!-- Plotly.js -->   
+  <script src="https://d14fo0winaifog.cloudfront.net/plotly-basic.js"></script>
 	<script>
 		$(document).ready(function(){
 
@@ -32,6 +37,7 @@
 			var questionCounter = -1;
 
 			$(".panel-questions").hide();
+			$("#myDiv").hide();
 
     		$("#rentId").click(function(){
         		$(".panel-icons").fadeOut(1000, "swing", function(){
@@ -40,23 +46,70 @@
         		});
    	 		});
 
-   	 		$("#nextId").click(function(){
+
+   	 		$(".hm-rentImg").click(function(){
+   	 			var uploadURL = "http://localhost:3000/upload"
+
+				$.post(
+						uploadURL,
+				      	{
+				      	  context: "rent",
+				          zipcode: "98103",
+				          bedrooms: "1",
+				          bathrooms: "1",
+				          rent: "1200"
+				        },
+				        function(data,status){
+				        	//var obj = JSON.parse(data);
+    						//var tid = obj.test;
+    						var txt = "";
+    						var x;
+							for (x in data) {
+							    txt += x + ", " + data[x] + " ";
+							}
+							alert("Text is ->" + txt + 
+								"\nStatus is " + status);
+
+
+
+           			  		if (status == 'success')
+           			  		{
+           			  			console.log("Success!!!");
+           			  			$("#myDiv").show();
+           			  			$(".hm-panel").hide();
+           			  			document.getElementById("userRentId").innerHTML = "Your rent is " + data['userRent'];
+           			  			//document.getElementById("avgRentId").innerHTML = "Your rent is " + data['userRent'];
+
+           			  			//document.getElementById("avgRentId").innerHTML = "Average rent in your zipcode is " + data['avgRent'];
+
+
+           			  		}
+           			  		else
+           			  			console.log("Nope");
+				        	//alert("data is " + data + "\n Status is " + status);
+				        	//window.location = data.redirect;
+				        }
+				      );
+   	 		})
+
+   	 		$("#nextButtonId").click(function(){
    	 			answers[questionCounter] = $.trim($("#inputTextId").val());
    	 			questionsRent[questionCounter].inputValidation();
+
    	 			if (questionCounter >= 0 && questionCounter >= questionsRent.length - 1)
-   	 				uploadData();
+   	 				uploadDataPost();
    	 			else
 					$(".panel-questions").fadeOut(1000,"swing", function(){
 						 showNextQuestion();
 					});
    	 		})
 
-   	 		function uploadData(){
+   	 		function uploadDataPost(){
    	 			var uploadURL = "http://localhost:3000/upload"
 
 				$.post(
 						uploadURL,
-				      	{	
+				      	{
 				      	  context: "rent",
 				          zipcode: answers[0],
 				          bedrooms: answers[1],
@@ -64,16 +117,43 @@
 				          rent: answers[3]
 				        },
 				        function(data,status){
-				        	window.location = data.redirect;
-				        	//alert("Redirect to ->" + data.redirect);
-				        	//if (typeof data.redirect == 'string')
-                    		//	window.location = data.redirect
-				       //  	   var obj = JSON.parse(data);
-    							// var tid = obj.tid;
-    							// alert(tid);
-				            //alert("Data: " + data + "\nStatus: " + status);
+				        	var obj = JSON.parse(data);
+    						//var tid = obj.test;
+           			  		alert("Data name from POST" + obj.user + "\nStatus: " + status);
+           			  		if (status == 'success')
+           			  		{
+           			  			console.log("Success!!!");
+           			  			//$("#myDiv").show();
+           			  			//$(".hm-panel").hide();
+           			  		}
+           			  		else
+           			  			console.log("Nope");
+				        	//alert("data is " + data + "\n Status is " + status);
+				        	//window.location = data.redirect;
 				        }
 				      );
+   	 		}
+
+
+   	 		function uploadData()
+   	 		{
+   	 			var uploadURL = "http://localhost:3000/upload";
+
+   	 			$.get(
+   	 				  	uploadURL, 
+   	 				  	{
+				      	  context: "rent",
+				          zipcode: answers[0],
+				          bedrooms: answers[1],
+				          bathrooms: answers[2],
+				          rent: answers[3]
+				      	},
+					  	function(data, status){
+					  		//var obj = JSON.parse(data);
+    						//var tid = obj.name;
+           			  		//alert("Data name " + tid + "\nStatus: " + status);
+       				  	}
+       				 );
    	 		}
 
    	 		function showNextQuestion(){
@@ -85,27 +165,12 @@
    	 		 	});
    	 		}
 
-   	 		function ajax(config){
-				this.method = config.method || 'GET';
-				this.payload = config.payload || null;
-				var xhr = new XMLHttpRequest();
-				xhr.open(this.method, config.url, true);
-				// xhr.upload.addEventListener("progress", function(e){
-				// 	config.progress(e);
-				// });
-				xhr.addEventListener("load", function(){
-					config.success(xhr);
-				});
-				xhr.addEventListener("error", config.error);
-				xhr.send(this.payload);
-			}
-
 		});
 	</script>
 </head>
 <body>
 	<!-- Container for selecting utility type -->
-	<ul class="hm-panel">
+	<div class="hm-panel">
 		<div class="panel-icons">
 			<li class="hm-utilitycontainer" id="rentId">
 				<h1 class="hm-title">Rent</h1>
@@ -124,9 +189,58 @@
 				<input id="inputTextId" type="text" />
 			</li>
 			<li class="hm-questionscontainer">
-				<button id="nextId" type="button"> -> </button>
+				<button id="nextButtonId" type="button"> -> </button>
 			</li>
 		</div>				
-	</ul>
+	</div>
+
+
+	<div id="myDiv">
+		<h1 id="userRentId" />
+		<h1 id ="avgRentId" />
+		<div id="plotlyDiv" />
+	</div>
+
+
+  <script>
+  var trace1 = {
+  x: [1, 2, 3, 4], 
+  y: [10, 11, 12, 13], 
+  mode: "markers", 
+  marker: {
+    color: ["hsl(0,100,40)", "hsl(33,100,40)", "hsl(66,100,40)", "hsl(99,100,40)"], 
+    size: [12, 22, 32, 42], 
+    opacity: [0.6, 0.7, 0.8, 0.9]
+  }, 
+  type: "scatter"
+};
+var trace2 = {
+  x: [1, 2, 3, 4], 
+  y: [11, 12, 13, 14], 
+  mode: "markers", 
+  marker: {
+    color: "rgb(31, 119, 180)", 
+    size: 18, 
+    symbol: ["circle", "square", "diamond", "cross"]
+  }, 
+  type: "scatter"
+};
+var trace3 = {
+  x: [1, 2, 3, 4], 
+  y: [12, 13, 14, 15], 
+  mode: "markers", 
+  marker: {
+    size: 18, 
+    line: {
+      color: ["rgb(120,120,120)", "rgb(120,120,120)", "red", "rgb(120,120,120)"], 
+      width: [2, 2, 6, 2]
+    }
+  }, 
+  type: "scatter"
+};
+var data = [trace1, trace2, trace3];
+var layout = {showlegend: false};
+Plotly.plot("plotlyDiv", data, layout);
+  </script>
 </body>
 </html>
